@@ -12,7 +12,10 @@ db_config = {
     "port": "5433"
 }
 
-# Conference Report Query (Recording File Name REMOVED)
+# Exact datetime range
+START_DATETIME = "2025-12-19 00:00:00"
+END_DATETIME   = "2025-12-20 23:59:59"
+
 query = """
 SELECT
     c.startdate                     AS "Start Date",
@@ -29,15 +32,19 @@ SELECT
 FROM cr_conf_log c
 LEFT JOIN ct_user u        ON c.agentid = u.id
 LEFT JOIN ct_campaign camp ON c.campid = camp.id
-WHERE c.startdate >= '2025-12-19'
-  AND c.startdate <= '2025-12-20'
+WHERE c.startdate BETWEEN %s AND %s
 ORDER BY c.startdate;
 """
 
 try:
     conn = psycopg2.connect(**db_config)
 
-    df = pd.read_sql_query(query, conn)
+    df = pd.read_sql_query(
+        query,
+        conn,
+        params=(START_DATETIME, END_DATETIME)
+    )
+
     conn.close()
 
     csv_buffer = StringIO()
@@ -45,12 +52,17 @@ try:
     csv_buffer.seek(0)
 
     current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    file_path = f"/tmp/conference_report_2025-12-19_to_2025-12-20_{current_time}.csv"
+    file_path = (
+        f"/tmp/conference_report_"
+        f"2025-12-19_00-00-00_to_2025-12-20_23-59-59_{current_time}.csv"
+    )
 
     with open(file_path, "w") as f:
         f.write(csv_buffer.getvalue())
 
-    print(f"✅ Conference Report successfully saved at: {file_path}")
+    print(f"✅ Conference Report generated successfully")
+    print(f"📁 File Path: {file_path}")
+    print(f"📊 Total Records: {len(df)}")
 
 except Exception as e:
     print(f"❌ Error: {e}")
