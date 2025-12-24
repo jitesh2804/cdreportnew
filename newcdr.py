@@ -12,7 +12,7 @@ db_config = {
     "port": "5433"
 }
 
-# Conference Report Query
+# Conference Report Query (Recording File Name REMOVED)
 query = """
 SELECT
     c.startdate                     AS "Start Date",
@@ -21,7 +21,6 @@ SELECT
     camp.name                       AS "Campaign",
     c.phonenumber                   AS "Conference Number",
     c.accountcode                   AS "Account Code",
-    c.recordingfilename             AS "Recording File Name",
     TO_CHAR(make_interval(secs => c.confduration), 'HH24:MI:SS')
                                     AS "Conference Duration",
     c.customernumber                AS "Customer Number",
@@ -36,27 +35,22 @@ ORDER BY c.startdate;
 """
 
 try:
-    # DB Connection
     conn = psycopg2.connect(**db_config)
 
-    # Fetch data into DataFrame
     df = pd.read_sql_query(query, conn)
     conn.close()
 
-    # CSV in memory
     csv_buffer = StringIO()
     df.to_csv(csv_buffer, index=False)
     csv_buffer.seek(0)
 
-    # Dynamic filename
     current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     file_path = f"/tmp/conference_report_2025-12-19_to_2025-12-20_{current_time}.csv"
 
-    # Write CSV to file
     with open(file_path, "w") as f:
         f.write(csv_buffer.getvalue())
 
-    print(f"✅ Conference Report saved at: {file_path}")
+    print(f"✅ Conference Report successfully saved at: {file_path}")
 
 except Exception as e:
     print(f"❌ Error: {e}")
