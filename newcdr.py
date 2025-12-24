@@ -13,8 +13,8 @@ db_config = {
 }
 
 # Exact datetime range
-START_DATETIME = "2025-12-19 00:00:00"
-END_DATETIME   = "2025-12-20 23:59:59"
+START_DATETIME = "2025-12-21 00:00:00"
+END_DATETIME   = "2025-12-23 23:59:59"
 
 query = """
 SELECT
@@ -54,7 +54,7 @@ try:
     current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     file_path = (
         f"/tmp/conference_report_"
-        f"2025-12-19_00-00-00_to_2025-12-20_23-59-59_{current_time}.csv"
+        f"2025-12-21to_23{current_time}.csv"
     )
 
     with open(file_path, "w") as f:
